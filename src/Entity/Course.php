@@ -6,6 +6,8 @@ use App\Repository\CourseRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Validator\Constraints\Unique;
 
 #[ORM\Entity(repositoryClass: CourseRepository::class)]
 class Course
@@ -13,18 +15,28 @@ class Course
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['course_details','course_page'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['course_details','course_page'])]
     private ?string $name = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['course_details', 'course_page'])]
     private ?string $description = null;
 
     /**
      * @var Collection<int, User>
      */
-    #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'courses')]
+    #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'studentCourses')]
+    #[ORM\JoinTable(name: 'course_students')]
+    #[Groups(['course_page'])]
+    private Collection $students;
+
+    #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'teachingCourses')]
+    #[ORM\JoinTable(name: 'course_teachers')]
+    #[Groups(['course_details', 'course_page'])]
     private Collection $teachers;
 
     /**
@@ -33,8 +45,14 @@ class Course
     #[ORM\OneToMany(targetEntity: Post::class, mappedBy: 'course')]
     private Collection $posts;
 
+    #[ORM\Column(length: 10)]
+    #[Groups(['course_page'])]
+    #[Unique(message: "This access code is already used.")]
+    private ?string $access_code = null;
+
     public function __construct()
     {
+        $this->students = new ArrayCollection();
         $this->teachers = new ArrayCollection();
         $this->posts = new ArrayCollection();
     }
@@ -92,6 +110,24 @@ class Course
         return $this;
     }
 
+    public function getStudents(): Collection
+    {
+        return $this->students;
+    }
+    public function addStudent(User $user): static
+    {
+        if (!$this->students->contains($user)) {
+            $this->students->add($user);
+        }
+        return $this;
+    }
+    public function removeStudent(User $user): static
+    {
+        $this->students->removeElement($user);
+        return $this;
+    }
+
+
     /**
      * @return Collection<int, Post>
      */
@@ -118,6 +154,18 @@ class Course
                 $post->setCourse(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getAccessCode(): ?string
+    {
+        return $this->access_code;
+    }
+
+    public function setAccessCode(string $access_code): static
+    {
+        $this->access_code = $access_code;
 
         return $this;
     }

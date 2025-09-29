@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Course;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -40,4 +41,39 @@ class CourseRepository extends ServiceEntityRepository
 //            ->getOneOrNullResult()
 //        ;
 //    }
+
+    public function getMyCourses(User $user): array {
+        return $this->createQueryBuilder('c')
+            ->join('c.teachers', 't')
+            ->where('t = :user')
+            ->setParameter('user', $user)
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function getEnrolledCourses(User $user): array
+    {
+        $teachingCourses = $this->createQueryBuilder('c')
+            ->join('c.teachers', 't')
+            ->where('t = :user')
+            ->setParameter('user', $user)
+            ->getQuery()
+            ->getResult();
+
+        $studentCourses = $this->createQueryBuilder('c')
+            ->join('c.students', 's')
+            ->where('s = :user')
+            ->setParameter('user', $user)
+            ->getQuery()
+            ->getResult();
+
+        $allCourses = [];
+        foreach ($teachingCourses as $teachingCourse) {
+            array_push($allCourses, $teachingCourse);
+        }
+        foreach ($studentCourses as $studentCourse) {
+            array_push($allCourses, $studentCourse);
+        }
+        return $allCourses;
+    }
 }

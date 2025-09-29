@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: PostRepository::class)]
 #[ORM\InheritanceType("JOINED")]
@@ -20,12 +21,15 @@ class Post
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups('course_page')]
     private ?int $id = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups('course_page')]
     private ?string $title = null;
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Groups('course_page')]
     private ?string $text = null;
 
     #[ORM\ManyToOne(inversedBy: 'posts')]
@@ -37,6 +41,11 @@ class Post
      */
     #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'post')]
     private Collection $comments;
+
+    #[ORM\ManyToOne(inversedBy: 'posts')]
+    #[ORM\JoinColumn(nullable: false)]
+    #[Groups('course_page')]
+    private ?User $user = null;
 
     public function __construct()
     {
@@ -60,14 +69,14 @@ class Post
         return $this;
     }
 
-    public function getTest(): ?string
+    public function getText(): ?string
     {
-        return $this->test;
+        return $this->text;
     }
 
-    public function setTest(string $test): static
+    public function setText(string $text): static
     {
-        $this->test = $test;
+        $this->text = $text;
 
         return $this;
     }
@@ -114,4 +123,27 @@ class Post
         return $this;
     }
 
+    #[Groups(['course_page'])]
+    public function getCommentCount(): int
+    {
+        return $this->comments?->count() ?? 0;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): static
+    {
+        $this->user = $user;
+
+        return $this;
+    }
+
+    #[Groups(['course_page'])]
+    public function getType(): string
+    {
+        return "post";
+    }
 }
