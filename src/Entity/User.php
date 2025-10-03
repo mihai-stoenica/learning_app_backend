@@ -25,6 +25,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['course_page', 'post_page'])]
     private ?int $id = null;
 
     #[Assert\NotBlank]
@@ -73,12 +74,19 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Post::class, mappedBy: 'user')]
     private Collection $posts;
 
+    /**
+     * @var Collection<int, UserAssignmentSubmission>
+     */
+    #[ORM\OneToMany(targetEntity: UserAssignmentSubmission::class, mappedBy: 'user')]
+    private Collection $userAssignments;
+
     public function __construct()
     {
         $this->studentCourses = new ArrayCollection();
         $this->teachingCourses = new ArrayCollection();
         $this->comments = new ArrayCollection();
         $this->posts = new ArrayCollection();
+        $this->userAssignments = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -242,6 +250,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             // set the owning side to null (unless already changed)
             if ($post->getUser() === $this) {
                 $post->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, UserAssignmentSubmission>
+     */
+    public function getUserAssignments(): Collection
+    {
+        return $this->userAssignments;
+    }
+
+    public function addUserAssignment(UserAssignmentSubmission $userAssignment): static
+    {
+        if (!$this->userAssignments->contains($userAssignment)) {
+            $this->userAssignments->add($userAssignment);
+            $userAssignment->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUserAssignment(UserAssignmentSubmission $userAssignment): static
+    {
+        if ($this->userAssignments->removeElement($userAssignment)) {
+            // set the owning side to null (unless already changed)
+            if ($userAssignment->getUser() === $this) {
+                $userAssignment->setUser(null);
             }
         }
 

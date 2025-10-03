@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\AssignmentRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
@@ -17,6 +19,18 @@ class Assignment extends Post
     #[ORM\Column(type: Types::DECIMAL, precision: 5, scale: 2)]
     #[Groups('course_page')]
     private ?string $max_score = null;
+
+    /**
+     * @var Collection<int, UserAssignmentSubmission>
+     */
+    #[ORM\OneToMany(targetEntity: UserAssignmentSubmission::class, mappedBy: 'assignment')]
+    private Collection $userAssignments;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->userAssignments = new ArrayCollection();
+    }
 
     public function getDeadline(): string
     {
@@ -47,4 +61,34 @@ class Assignment extends Post
     {
         return "assignment";
     }
+
+    /**
+     * @return Collection<int, UserAssignmentSubmission>
+     */
+    public function getUserAssignments(): Collection
+    {
+        return $this->userAssignments;
+    }
+
+    public function addUserAssignment(UserAssignmentSubmission $userAssignment): static
+    {
+        if (!$this->userAssignments->contains($userAssignment)) {
+            $this->userAssignments->add($userAssignment);
+            $userAssignment->setAssignment($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUserAssignment(UserAssignmentSubmission $userAssignment): static
+    {
+        if ($this->userAssignments->removeElement($userAssignment)) {
+            if ($userAssignment->getAssignment() === $this) {
+                $userAssignment->setAssignment(null);
+            }
+        }
+
+        return $this;
+    }
+
 }

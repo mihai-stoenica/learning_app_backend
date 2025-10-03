@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Dto\Course\NewCourseDto;
 use App\Entity\Course;
 use App\Repository\CourseRepository;
+use App\Repository\UserRepository;
 use App\Service\CourseService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -82,6 +83,31 @@ final class CourseController extends AbstractController
 
         $json = $serializer->serialize($course, 'json', ['groups' => 'course_details']);
 
+        return new JsonResponse($json, Response::HTTP_OK, [], true);
+    }
+
+    #[Route('/make_teacher/{id}', name: 'app_course_join', methods: ['POST'])]
+    #[IsGranted('edit', 'course', message: "You don't have access to do this.")]
+    public function make_teacher(Course $course, Request $request, EntityManagerInterface $entityManager, UserRepository $userRepository, SerializerInterface $serializer): Response
+    {
+        $userId = $request->getPayload()->get('user_id');
+        $user = $userRepository->find($userId);
+
+        if($course->getTeachers()->contains($user)){
+            return new JsonResponse(['message' => 'This user is already a teacher of this course.'], Response::HTTP_FORBIDDEN);
+        }
+
+        if(!$course->getStudents()->contains($user)) {
+            return new JsonResponse(['message' => 'This user is not enrolled in this course.'], Response::HTTP_FORBIDDEN);
+        }
+
+        $course->addTeacher($user);
+        $course->removeStudent($user);
+
+        $entityManager->persist($course);
+        $entityManager->flush();
+
+        $json = $serializer->serialize($course, 'json', ['groups' => 'course_details']);
         return new JsonResponse($json, Response::HTTP_OK, [], true);
     }
 }

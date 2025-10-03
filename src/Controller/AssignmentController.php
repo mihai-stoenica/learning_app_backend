@@ -15,7 +15,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Serializer\SerializerInterface;
 
 #[Route('/api/assignment')]
-#[IsGranted('view', 'course',  "You do not have access.")]
+#[IsGranted('edit', 'course',  "You do not have access.")]
 final class AssignmentController extends AbstractController
 {
     #[Route('/new/course/{id}', name: 'app_assignment_new', methods: ['POST'])]
