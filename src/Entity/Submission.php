@@ -8,7 +8,8 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: UserAssignmentRepository::class)]
-class UserAssignmentSubmission
+#[ORM\Table(name: 'user_assignment_submission')]
+class Submission
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]

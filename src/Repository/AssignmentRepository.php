@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Assignment;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -16,28 +17,16 @@ class AssignmentRepository extends ServiceEntityRepository
         parent::__construct($registry, Assignment::class);
     }
 
-    //    /**
-    //     * @return Assignment[] Returns an array of Assignment objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('a')
-    //            ->andWhere('a.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('a.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
-
-    //    public function findOneBySomeField($value): ?Assignment
-    //    {
-    //        return $this->createQueryBuilder('a')
-    //            ->andWhere('a.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+    public function getTodo(User $user): array
+    {
+        return $this->createQueryBuilder('a')
+            ->join('a.course', 'c')
+            ->join('c.students', 's')
+            ->leftJoin('a.userAssignments', 'r', 'WITH', 'r.user = s') // join user submissions
+            ->where('s = :user')
+            ->andWhere('r.id IS NULL') // no submission yet
+            ->setParameter('user', $user)
+            ->getQuery()
+            ->getResult();
+    }
 }

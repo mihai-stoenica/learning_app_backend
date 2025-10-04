@@ -68,6 +68,11 @@ final class CourseController extends AbstractController
         $data = $request->getPayload()->all();
         $accessCode = $data['access_code'] ?? null;
         $course = $courseRepository->findOneBy(['access_code' => $accessCode]);
+
+        if(!$course){
+            return new JsonResponse(['message' => 'Access Code Not Found'], Response::HTTP_NOT_FOUND);
+        }
+
         $user = $this->getUser();
 
         if($course->getStudents()->contains($user) || $course->getTeachers()->contains($user)){
@@ -86,7 +91,7 @@ final class CourseController extends AbstractController
         return new JsonResponse($json, Response::HTTP_OK, [], true);
     }
 
-    #[Route('/make_teacher/{id}', name: 'app_course_join', methods: ['POST'])]
+    #[Route('/make_teacher/{id}', name: 'app_course_make_teacher', methods: ['POST'])]
     #[IsGranted('edit', 'course', message: "You don't have access to do this.")]
     public function make_teacher(Course $course, Request $request, EntityManagerInterface $entityManager, UserRepository $userRepository, SerializerInterface $serializer): Response
     {

@@ -21,9 +21,9 @@ class Assignment extends Post
     private ?string $max_score = null;
 
     /**
-     * @var Collection<int, UserAssignmentSubmission>
+     * @var Collection<int, Submission>
      */
-    #[ORM\OneToMany(targetEntity: UserAssignmentSubmission::class, mappedBy: 'assignment')]
+    #[ORM\OneToMany(targetEntity: Submission::class, mappedBy: 'assignment')]
     private Collection $userAssignments;
 
     public function __construct()
@@ -63,14 +63,14 @@ class Assignment extends Post
     }
 
     /**
-     * @return Collection<int, UserAssignmentSubmission>
+     * @return Collection<int, Submission>
      */
     public function getUserAssignments(): Collection
     {
         return $this->userAssignments;
     }
 
-    public function addUserAssignment(UserAssignmentSubmission $userAssignment): static
+    public function addUserAssignment(Submission $userAssignment): static
     {
         if (!$this->userAssignments->contains($userAssignment)) {
             $this->userAssignments->add($userAssignment);
@@ -80,7 +80,7 @@ class Assignment extends Post
         return $this;
     }
 
-    public function removeUserAssignment(UserAssignmentSubmission $userAssignment): static
+    public function removeUserAssignment(Submission $userAssignment): static
     {
         if ($this->userAssignments->removeElement($userAssignment)) {
             if ($userAssignment->getAssignment() === $this) {

@@ -32,7 +32,7 @@ class Post
     #[Groups('course_page')]
     private ?string $text = null;
 
-    #[ORM\ManyToOne(inversedBy: 'posts')]
+    #[ORM\ManyToOne(targetEntity: Course::class,inversedBy: 'posts')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Course $course = null;
 

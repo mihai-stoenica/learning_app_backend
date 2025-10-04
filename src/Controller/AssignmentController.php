@@ -5,6 +5,8 @@ namespace App\Controller;
 use App\Dto\Assignment\NewAssignmentDto;
 use App\Entity\Assignment;
 use App\Entity\Course;
+use App\Repository\AssignmentRepository;
+use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -15,10 +17,10 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Serializer\SerializerInterface;
 
 #[Route('/api/assignment')]
-#[IsGranted('edit', 'course',  "You do not have access.")]
 final class AssignmentController extends AbstractController
 {
     #[Route('/new/course/{id}', name: 'app_assignment_new', methods: ['POST'])]
+    #[IsGranted('edit', 'course',  "You do not have access.")]
     public function new(#[MapRequestPayload] NewAssignmentDto $assignmentDto, Course $course, EntityManagerInterface $entityManager, SerializerInterface $serializer): Response
     {
         $assignment = new Assignment();
@@ -38,5 +40,14 @@ final class AssignmentController extends AbstractController
 
         return new JsonResponse($json, Response::HTTP_CREATED);
 
+    }
+
+    #[Route('/todo', name: 'app_assignment_todo', methods: ['GET'])]
+    public function todo(AssignmentRepository $assignmentRepository, SerializerInterface $serializer): Response
+    {
+        $user = $this->getUser();
+        $todos = $assignmentRepository->getToDo($user);
+        $json = $serializer->serialize($todos, 'json', ['groups' => ['course_page']]);
+        return new JsonResponse($json, Response::HTTP_OK,[],true);
     }
 }

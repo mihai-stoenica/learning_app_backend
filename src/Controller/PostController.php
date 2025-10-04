@@ -6,7 +6,7 @@ use App\Dto\Post\NewPostDto;
 use App\Entity\Assignment;
 use App\Entity\Course;
 use App\Entity\Post;
-use App\Entity\UserAssignmentSubmission;
+use App\Entity\Submission;
 use App\Repository\UserAssignmentRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;

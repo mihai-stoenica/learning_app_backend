@@ -75,9 +75,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private Collection $posts;
 
     /**
-     * @var Collection<int, UserAssignmentSubmission>
+     * @var Collection<int, Submission>
      */
-    #[ORM\OneToMany(targetEntity: UserAssignmentSubmission::class, mappedBy: 'user')]
+    #[ORM\OneToMany(targetEntity: Submission::class, mappedBy: 'user')]
     private Collection $userAssignments;
 
     public function __construct()
@@ -257,14 +257,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     /**
-     * @return Collection<int, UserAssignmentSubmission>
+     * @return Collection<int, Submission>
      */
     public function getUserAssignments(): Collection
     {
         return $this->userAssignments;
     }
 
-    public function addUserAssignment(UserAssignmentSubmission $userAssignment): static
+    public function addUserAssignment(Submission $userAssignment): static
     {
         if (!$this->userAssignments->contains($userAssignment)) {
             $this->userAssignments->add($userAssignment);
@@ -274,7 +274,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function removeUserAssignment(UserAssignmentSubmission $userAssignment): static
+    public function removeUserAssignment(Submission $userAssignment): static
     {
         if ($this->userAssignments->removeElement($userAssignment)) {
             // set the owning side to null (unless already changed)
