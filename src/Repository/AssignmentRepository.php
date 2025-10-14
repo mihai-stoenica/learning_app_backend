@@ -22,10 +22,27 @@ class AssignmentRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('a')
             ->join('a.course', 'c')
             ->join('c.students', 's')
-            ->leftJoin('a.userAssignments', 'r', 'WITH', 'r.user = s') // join user submissions
+            ->leftJoin('a.userAssignments', 'r', 'WITH', 'r.user = s')
             ->where('s = :user')
-            ->andWhere('r.id IS NULL') // no submission yet
+            ->andWhere('r.id IS NULL')
+            ->andWhere('a.deadline > :now')
             ->setParameter('user', $user)
+            ->setParameter('now', new \DateTime('now', timezone: new \DateTimeZone('Europe/Bucharest')))
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function  getMissed(User $user): array
+    {
+        return $this->createQueryBuilder('a')
+            ->join('a.course', 'c')
+            ->join('c.students', 's')
+            ->leftJoin('a.userAssignments', 'r', 'WITH', 'r.user = s')
+            ->where('s = :user')
+            ->andWhere('r.id IS NULL')
+            ->andWhere('a.deadline <= :now')
+            ->setParameter('user', $user)
+            ->setParameter('now', new \DateTime('now', timezone: new \DateTimeZone('Europe/Bucharest')))
             ->getQuery()
             ->getResult();
     }

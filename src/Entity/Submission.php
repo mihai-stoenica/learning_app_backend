@@ -14,22 +14,25 @@ class Submission
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['submission_details'])]
+    #[Groups(['submission_details', 'work'])]
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'userAssignments')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['work'])]
     private ?User $user = null;
 
     #[ORM\ManyToOne(inversedBy: 'userAssignments')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['work'])]
     private ?Assignment $assignment = null;
 
     #[ORM\Column(type: Types::DECIMAL, precision: 5, scale: 2, nullable: true)]
+    #[Groups(['work'])]
     private ?string $score = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['submission_details'])]
+    #[Groups(['submission_details', 'work'])]
     private ?string $answer = null;
 
     public function getId(): ?int

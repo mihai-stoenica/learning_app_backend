@@ -19,7 +19,7 @@ class Course
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['course_details','course_page'])]
+    #[Groups(['course_details','course_page', 'todo'])]
     private ?string $name = null;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -50,11 +50,18 @@ class Course
     #[Unique(message: "This access code is already used.")]
     private ?string $access_code = null;
 
+    /**
+     * @var Collection<int, Message>
+     */
+    #[ORM\OneToMany(targetEntity: Message::class, mappedBy: 'course')]
+    private Collection $messages;
+
     public function __construct()
     {
         $this->students = new ArrayCollection();
         $this->teachers = new ArrayCollection();
         $this->posts = new ArrayCollection();
+        $this->messages = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -166,6 +173,36 @@ class Course
     public function setAccessCode(string $access_code): static
     {
         $this->access_code = $access_code;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Message>
+     */
+    public function getMessages(): Collection
+    {
+        return $this->messages;
+    }
+
+    public function addMessage(Message $message): static
+    {
+        if (!$this->messages->contains($message)) {
+            $this->messages->add($message);
+            $message->setCourse($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMessage(Message $message): static
+    {
+        if ($this->messages->removeElement($message)) {
+            // set the owning side to null (unless already changed)
+            if ($message->getCourse() === $this) {
+                $message->setCourse(null);
+            }
+        }
 
         return $this;
     }

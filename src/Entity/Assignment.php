@@ -13,11 +13,11 @@ use Symfony\Component\Serializer\Attribute\Groups;
 class Assignment extends Post
 {
     #[ORM\Column(nullable: true)]
-    #[Groups('course_page')]
+    #[Groups(['course_page', 'todo'])]
     private ?\DateTime $deadline = null;
 
     #[ORM\Column(type: Types::DECIMAL, precision: 5, scale: 2)]
-    #[Groups('course_page')]
+    #[Groups(['course_page', 'todo', 'work'])]
     private ?string $max_score = null;
 
     /**
@@ -35,6 +35,11 @@ class Assignment extends Post
     public function getDeadline(): string
     {
         return $this->deadline->format("Y-m-d H:i:s");
+    }
+
+    public function getRawDeadline(): \DateTime
+    {
+        return $this->deadline;
     }
 
     public function setDeadline(?\DateTime $deadline): static
@@ -56,7 +61,7 @@ class Assignment extends Post
         return $this;
     }
 
-    #[Groups(['course_page'])]
+    #[Groups(['course_page', 'todo'])]
     public function getType(): string
     {
         return "assignment";

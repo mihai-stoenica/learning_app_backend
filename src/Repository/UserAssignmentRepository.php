@@ -26,4 +26,16 @@ class UserAssignmentRepository extends ServiceEntityRepository
             ->getQuery()
             ->getOneOrNullResult() !== null;
     }
+
+    public function getByCourse($course) : array
+    {
+        return $this->createQueryBuilder('s')
+            ->join('s.assignment', 'a')
+            ->join('a.course', 'c')
+            ->andWhere('c = :course')
+            ->setParameter('course', $course)
+            ->getQuery()
+            ->getResult();
+
+    }
 }

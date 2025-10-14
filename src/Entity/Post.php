@@ -21,19 +21,20 @@ class Post
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups('course_page')]
+    #[Groups(['course_page', 'todo', 'work'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups('course_page')]
+    #[Groups(['course_page', 'todo', 'work'])]
     private ?string $title = null;
 
     #[ORM\Column(type: Types::TEXT)]
-    #[Groups('course_page')]
+    #[Groups(['course_page', 'todo', 'work'])]
     private ?string $text = null;
 
     #[ORM\ManyToOne(targetEntity: Course::class,inversedBy: 'posts')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['todo'])]
     private ?Course $course = null;
 
     /**
@@ -44,7 +45,7 @@ class Post
 
     #[ORM\ManyToOne(inversedBy: 'posts')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups('course_page')]
+    #[Groups(['course_page', 'todo'])]
     private ?User $user = null;
 
     public function __construct()
@@ -141,7 +142,7 @@ class Post
         return $this;
     }
 
-    #[Groups(['course_page'])]
+    #[Groups(['course_page','todo'])]
     public function getType(): string
     {
         return "post";

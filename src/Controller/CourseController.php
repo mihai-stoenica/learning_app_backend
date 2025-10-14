@@ -4,7 +4,9 @@ namespace App\Controller;
 
 use App\Dto\Course\NewCourseDto;
 use App\Entity\Course;
+use App\Repository\AssignmentRepository;
 use App\Repository\CourseRepository;
+use App\Repository\UserAssignmentRepository;
 use App\Repository\UserRepository;
 use App\Service\CourseService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -113,6 +115,16 @@ final class CourseController extends AbstractController
         $entityManager->flush();
 
         $json = $serializer->serialize($course, 'json', ['groups' => 'course_details']);
+        return new JsonResponse($json, Response::HTTP_OK, [], true);
+    }
+
+    #[Route('/work/{course}', name: 'app_user_assignment_work', methods: ['GET'])]
+    #[IsGranted('edit', 'course', "You have to be a teacher to see the work")]
+    public function work(Course $course, UserAssignmentRepository $submissionRepository, SerializerInterface $serializer): Response
+    {
+        $submissions = $submissionRepository->getByCourse($course);
+        $json = $serializer->serialize($submissions, 'json', ['groups' => 'work']);
+
         return new JsonResponse($json, Response::HTTP_OK, [], true);
     }
 }

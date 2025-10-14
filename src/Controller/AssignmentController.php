@@ -47,7 +47,16 @@ final class AssignmentController extends AbstractController
     {
         $user = $this->getUser();
         $todos = $assignmentRepository->getToDo($user);
-        $json = $serializer->serialize($todos, 'json', ['groups' => ['course_page']]);
+        $json = $serializer->serialize($todos, 'json', ['groups' => ['todo']]);
+        return new JsonResponse($json, Response::HTTP_OK,[],true);
+    }
+
+    #[Route('/missed', name: 'app_assignment_missed', methods: ['GET'])]
+    public function missed(AssignmentRepository $assignmentRepository, SerializerInterface $serializer): Response
+    {
+        $user = $this->getUser();
+        $todos = $assignmentRepository->getMissed($user);
+        $json = $serializer->serialize($todos, 'json', ['groups' => ['todo']]);
         return new JsonResponse($json, Response::HTTP_OK,[],true);
     }
 }
